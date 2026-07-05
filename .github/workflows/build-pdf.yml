@@ -1,0 +1,43 @@
+name: Build PDF
+
+on:
+  push:
+    branches:
+      - "update"
+      - "update/**"
+    paths:
+      - "docs/**/*.md"
+      - "metadata/**/*.yaml"
+      - "templates/**"
+      - "scripts/build-pdf.sh"
+      - ".github/workflows/build-pdf.yml"
+  pull_request:
+    paths:
+      - "docs/**/*.md"
+      - "metadata/**/*.yaml"
+      - "templates/**"
+      - "scripts/build-pdf.sh"
+      - ".github/workflows/build-pdf.yml"
+
+jobs:
+  build-pdf:
+    if: github.event_name == 'push' || github.head_ref == 'update' || startsWith(github.head_ref, 'update/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pandoc and LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-latex-recommended texlive-latex-extra
+
+      - name: Build PDF
+        run: ./scripts/build-pdf.sh metadata/product.yaml --all
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt-documentation-pdf
+          path: dist/*.pdf

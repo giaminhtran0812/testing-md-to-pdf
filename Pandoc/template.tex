@@ -42,7 +42,6 @@
 \usepackage{array}
 \usepackage{colortbl}
 \usepackage{etoolbox}
-\usepackage{pdflscape}
 \usepackage[titles]{tocloft}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
@@ -289,6 +288,101 @@
   }
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
+}
+
+% ---------- Landscape pages ----------
+\newif\ifBHLandscapeActive
+\BHLandscapeActivefalse
+
+\AddToHook{shipout/foreground}{%
+  \ifBHLandscapeActive
+    \begin{tikzpicture}[remember picture, overlay]
+      \node[
+        anchor=south west,
+        align=left,
+        text width=7.5in,
+        xshift=0.5in,
+        yshift=0.34in
+      ] at (current page.south west) {%
+        \fontsize{10pt}{12pt}\selectfont
+        Copyright \BHYear\ Baker Hughes Company. All rights reserved.\\
+        Uncontrolled when printed or transmitted electronically.
+      };
+      \node[
+        anchor=south east,
+        align=right,
+        text width=2.5in,
+        xshift=-0.5in,
+        yshift=0.34in
+      ] at (current page.south east) {%
+        \fontsize{10pt}{12pt}\selectfont
+        Page \thepage\ of \pageref*{LastPage}
+      };
+      \node[
+        anchor=south,
+        yshift=0.14in
+      ] at (current page.south) {%
+        \fontsize{10pt}{12pt}\selectfont\BHConfidentialityStyled
+      };
+    \end{tikzpicture}%
+  \fi
+}
+
+\newcommand{\BHSetPdfPageSize}{%
+  \ifdefined\pdfpagewidth
+    \setlength{\pdfpagewidth}{\paperwidth}%
+    \setlength{\pdfpageheight}{\paperheight}%
+  \fi
+  \ifdefined\pagewidth
+    \setlength{\pagewidth}{\paperwidth}%
+    \setlength{\pageheight}{\paperheight}%
+  \fi
+}
+
+\newcommand{\BHBeginLandscape}{%
+  \clearpage
+  \newgeometry{
+    left=0.5in,
+    right=0.5in,
+    top=1.2in,
+    bottom=0.9in,
+    headsep=45pt,
+    footskip=20pt
+  }%
+  \setlength{\paperwidth}{297mm}%
+  \setlength{\paperheight}{210mm}%
+  \BHSetPdfPageSize
+  \setlength{\textwidth}{\dimexpr\paperwidth-1in\relax}%
+  \setlength{\textheight}{\dimexpr\paperheight-2.1in\relax}%
+  \setlength{\linewidth}{\textwidth}%
+  \setlength{\hsize}{\textwidth}%
+  \setlength{\headwidth}{\textwidth}%
+  \setlength{\leftskip}{0pt}%
+  \BHLandscapeActivetrue
+  \thispagestyle{landscapePage}%
+  \pagestyle{landscapePage}%
+}
+
+\newcommand{\BHEndLandscape}{%
+  \clearpage
+  \BHLandscapeActivefalse
+  \newgeometry{
+    left=0.5in,
+    right=0.5in,
+    top=1.2in,
+    bottom=0.9in,
+    headsep=45pt,
+    footskip=20pt
+  }%
+  \setlength{\paperwidth}{210mm}%
+  \setlength{\paperheight}{297mm}%
+  \BHSetPdfPageSize
+  \setlength{\textwidth}{\dimexpr\paperwidth-1in\relax}%
+  \setlength{\textheight}{\dimexpr\paperheight-2.1in\relax}%
+  \setlength{\linewidth}{\textwidth}%
+  \setlength{\hsize}{\textwidth}%
+  \setlength{\headwidth}{\textwidth}%
+  \pagestyle{fancy}%
 }
 
 % ---------- Front page ----------

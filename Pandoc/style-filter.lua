@@ -9,8 +9,6 @@ local function get_caption_text(tbl)
   return ""
 end
 
-local pending_table_widths = nil
-
 local function parse_widths(s)
   local widths = {}
   if not s or s == "" then
@@ -23,6 +21,13 @@ local function parse_widths(s)
     end
   end
   return widths
+end
+
+local function get_width_attr(attributes)
+  if not attributes then
+    return nil
+  end
+  return attributes["widths"] or attributes["width"]
 end
 
 local function latex_escape(s)
@@ -148,8 +153,9 @@ function Table(tbl)
 
   local widths = nil
 
-  if tbl.attributes and tbl.attributes["widths"] then
-    widths = parse_widths(tbl.attributes["widths"])
+  local width_attr = get_width_attr(tbl.attributes)
+  if width_attr then
+    widths = parse_widths(width_attr)
   end
 
   return build_table(tbl, widths)
@@ -172,15 +178,16 @@ function DivWidths(el)
     return nil
   end
 
-  if has_class(el, "table-cols") and el.attributes and el.attributes["widths"] then
-    local widths = parse_widths(el.attributes["widths"])
+  local width_attr = get_width_attr(el.attributes)
+  if has_class(el, "table-cols") and width_attr then
+    local widths = parse_widths(width_attr)
 
     local new_blocks = pandoc.Blocks{}
 
     for _, b in ipairs(el.content) do
       if b.t == "Table" then
         b.attributes = b.attributes or {}
-        b.attributes["widths"] = el.attributes["widths"]
+        b.attributes["widths"] = width_attr
       end
       new_blocks:insert(b)
     end
@@ -197,8 +204,6 @@ function DivLandscape(el)
     return nil
   end
 
-  pending_table_widths = nil
-
   if not has_class(el, "landscape") then
     return nil
   end
@@ -207,10 +212,7 @@ function DivLandscape(el)
 
   blocks:insert(
     pandoc.RawBlock("latex",
-      "\\clearpage\n" ..
-      "\\begin{landscape}\n" ..
-      "\\pagestyle{fancy}\n" ..
-      "\\setlength{\\leftskip}{0pt}"
+      "\\BHBeginLandscape"
     )
   )
 
@@ -218,9 +220,7 @@ function DivLandscape(el)
 
   blocks:insert(
     pandoc.RawBlock("latex",
-      "\\end{landscape}\n" ..
-      "\\clearpage\n" ..
-      "\\pagestyle{fancy}"
+      "\\BHEndLandscape"
     )
   )
 

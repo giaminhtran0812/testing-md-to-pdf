@@ -86,7 +86,7 @@ Table: Standard three-column table
 | 2 | Documentation | Convert Markdown to PDF using the Pandoc template. |
 | 3 | Review | Check front page, TOC, headers, footers, and tables. |
 
-::: {.table-cols widths="0.15,0.30,0.55"}
+::: {.table-cols width="0.15,0.30,0.55"}
 Table: Custom-width table using the style filter
 
 | ID | Area | Verification |
@@ -134,3 +134,29 @@ Table: Landscape verification matrix
 
 This final section confirms that content after the landscape block returns to
 normal portrait layout with the standard page header and footer.
+
+::: {.landscape}
+
+# Second Landscape Content
+
+## Second Wide Table
+
+This page verifies that a second landscape block still keeps the header and
+footer at the top and bottom of the page.
+
+Table: Second landscape verification matrix
+
+| Area | Expected Result | Actual Check | Status |
+|---|---|---|---|
+| Page orientation | A4 landscape page size | Header remains horizontal at the top | Pass |
+| Footer placement | Footer remains horizontal at the bottom | Page number stays in the bottom-right corner | Pass |
+| Table width | Table uses the available landscape width | Columns remain readable | Pass |
+| Restore behavior | Next page returns to portrait | Follow-up section uses portrait header and footer | Pass |
+
+:::
+
+# Post-Landscape Portrait Check
+
+This page verifies that the document returns to normal portrait layout after a
+second landscape page. The footer should sit at the bottom of the portrait page,
+and the header should use the standard portrait width.

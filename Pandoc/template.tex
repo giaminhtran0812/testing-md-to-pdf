@@ -22,6 +22,19 @@
 \usepackage{fontspec}
 \setmainfont{Arial}
 
+% ---------- Space width ----------
+% 0pt keeps the font default. Try 0.28em, 0.32em, or 0.36em to increase spacing.
+\newcommand{\BHSpaceWidth}{0pt}
+\newcommand{\BHSpaceStretch}{0.08em}
+\newcommand{\BHSpaceShrink}{0.04em}
+\newcommand{\BHApplySpaceWidth}{%
+  \ifdim\BHSpaceWidth>0pt
+    \spaceskip=\BHSpaceWidth plus \BHSpaceStretch minus \BHSpaceShrink\relax
+    \xspaceskip=\BHSpaceWidth plus \BHSpaceStretch minus \BHSpaceShrink\relax
+  \fi
+}
+\AtBeginDocument{\BHApplySpaceWidth}
+
 % ---------- Packages ----------
 \usepackage[table]{xcolor}
 \usepackage[none]{hyphenat}

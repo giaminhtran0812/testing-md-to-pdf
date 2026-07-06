@@ -4,7 +4,7 @@ product: "Aptara MCS"
 doc_number: "AAA693120-TEST"
 revision: "A"
 author: "Codex"
-date: "2026-07-07"
+date: "July 7, 2026"
 copyright_year: "2026"
 confidentiality: "Baker Hughes Confidential"
 ---

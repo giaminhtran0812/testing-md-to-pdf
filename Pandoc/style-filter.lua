@@ -58,6 +58,28 @@ local function row_to_latex(row, is_header)
   return table.concat(parts, " & ") .. " \\\\ \\hline"
 end
 
+local function widths_to_cols(widths)
+  local cols = {}
+  local total = 0
+
+  for _, w in ipairs(widths) do
+    total = total + w
+  end
+
+  if total <= 0 then
+    return nil
+  end
+
+  for i, w in ipairs(widths) do
+    cols[i] = string.format(
+      [[>{\raggedright\arraybackslash}p{\dimexpr%.6f\linewidth-2\tabcolsep-\arrayrulewidth\relax}]],
+      w / total
+    )
+  end
+
+  return cols
+end
+
 -- ==============================
 -- Build table (NEW API)
 -- ==============================
@@ -75,23 +97,11 @@ local function build_table(tbl, widths_override)
   local cols = {}
 
   if widths_override and #widths_override == ncols then
-    for i = 1, ncols do
-      cols[i] = string.format(
-        [[>{\raggedright\arraybackslash}p{\dimexpr%.3f\linewidth-2\tabcolsep-\arrayrulewidth\relax}]],
-        widths_override[i]
-      )
-    end
+    cols = widths_to_cols(widths_override)
   elseif ncols == 3 then
-    cols = {
-      [[>{\raggedright\arraybackslash}p{0.08\linewidth}]],
-      [[>{\raggedright\arraybackslash}p{0.27\linewidth}]],
-      [[>{\raggedright\arraybackslash}p{0.60\linewidth}]]
-    }
+    cols = widths_to_cols({ 0.08, 0.27, 0.60 })
   elseif ncols == 2 then
-    cols = {
-      [[>{\raggedright\arraybackslash}p{0.22\linewidth}]],
-      [[>{\raggedright\arraybackslash}p{0.73\linewidth}]]
-    }
+    cols = widths_to_cols({ 0.22, 0.73 })
   else
     local total_tabcolsep = 2 * ncols
     local total_rules = ncols + 1
@@ -103,6 +113,10 @@ local function build_table(tbl, widths_override)
         ncols
       )
     end
+  end
+
+  if not cols then
+    return nil
   end
 
   local colspec = "|" .. table.concat(cols, "|") .. "|"

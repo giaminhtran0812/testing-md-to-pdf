@@ -96,6 +96,56 @@ Table: Custom-width table using the style filter
 | T-03 | Table | Header row uses the configured dark background and white bold text. |
 :::
 
+Table: Long table spanning multiple pages
+
+| Row | Category | Description |
+|---|---|---|
+| 01 | Long table | This row is part of a long table used to verify page breaks. |
+| 02 | Long table | The header row should repeat when the table continues on the next page. |
+| 03 | Long table | Captions should keep the Table a-b numbering format. |
+| 04 | Long table | Body rows should remain inside the page margins. |
+| 05 | Long table | The footer should stay at the bottom of each page. |
+| 06 | Long table | This row adds enough content to force a page break. |
+| 07 | Long table | This row adds enough content to force a page break. |
+| 08 | Long table | This row adds enough content to force a page break. |
+| 09 | Long table | This row adds enough content to force a page break. |
+| 10 | Long table | This row adds enough content to force a page break. |
+| 11 | Long table | This row adds enough content to force a page break. |
+| 12 | Long table | This row adds enough content to force a page break. |
+| 13 | Long table | This row adds enough content to force a page break. |
+| 14 | Long table | This row adds enough content to force a page break. |
+| 15 | Long table | This row adds enough content to force a page break. |
+| 16 | Long table | This row adds enough content to force a page break. |
+| 17 | Long table | This row adds enough content to force a page break. |
+| 18 | Long table | This row adds enough content to force a page break. |
+| 19 | Long table | This row adds enough content to force a page break. |
+| 20 | Long table | This row adds enough content to force a page break. |
+| 21 | Long table | This row adds enough content to force a page break. |
+| 22 | Long table | This row adds enough content to force a page break. |
+| 23 | Long table | This row adds enough content to force a page break. |
+| 24 | Long table | This row adds enough content to force a page break. |
+| 25 | Long table | This row adds enough content to force a page break. |
+| 26 | Long table | This row adds enough content to force a page break. |
+| 27 | Long table | This row adds enough content to force a page break. |
+| 28 | Long table | This row adds enough content to force a page break. |
+| 29 | Long table | This row adds enough content to force a page break. |
+| 30 | Long table | This row adds enough content to force a page break. |
+| 31 | Long table | This row adds enough content to force a page break. |
+| 32 | Long table | This row adds enough content to force a page break. |
+| 33 | Long table | This row adds enough content to force a page break. |
+| 34 | Long table | This row adds enough content to force a page break. |
+| 35 | Long table | This row adds enough content to force a page break. |
+| 36 | Long table | This row adds enough content to force a page break. |
+| 37 | Long table | This row adds enough content to force a page break. |
+| 38 | Long table | This row adds enough content to force a page break. |
+| 39 | Long table | This row adds enough content to force a page break. |
+| 40 | Long table | This row adds enough content to force a page break. |
+| 41 | Long table | This row adds enough content to force a page break. |
+| 42 | Long table | This row adds enough content to force a page break. |
+| 43 | Long table | This row adds enough content to force a page break. |
+| 44 | Long table | This row adds enough content to force a page break. |
+| 45 | Long table | This row confirms the long table can continue after a page break. |
+
 # Code
 
 The following block checks monospace rendering and spacing.

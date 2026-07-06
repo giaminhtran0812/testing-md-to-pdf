@@ -86,10 +86,10 @@
 
 % ---------- Numbering ----------
 \renewcommand{\thesection}{\arabic{section}}
-\renewcommand{\thetable}{\thesection-\arabic{table}}
 \counterwithin{table}{section}
-\renewcommand{\thefigure}{\thesection-\arabic{figure}}
 \counterwithin{figure}{section}
+\renewcommand{\thetable}{\thesection-\arabic{table}}
+\renewcommand{\thefigure}{\thesection-\arabic{figure}}
 
 \captionsetup[figure]{
   justification=centering,

@@ -1,6 +1,6 @@
 ---
-title: "Standard Product Test Document"
-product: "Aptara MCS"
+title: "Aptara MCS"
+subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
 revision: "A"
 author: "Codex"

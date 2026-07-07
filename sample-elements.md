@@ -2,7 +2,7 @@
 title: "Aptara MCS"
 subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
-revision: "A"
+revision: "003"
 author: "Codex"
 date: "July 7, 2026"
 copyright_year: "2026"
@@ -26,6 +26,26 @@ style testing. The generated PDF should show the front page, table of contents,
 running header, footer, page numbers, table captions, figure captions, and
 section-based numbering.
 
+## Links and Cross References {#sec:links-cross-references}
+
+This section tests common link formats: an inline external link to
+[Baker Hughes](https://www.bakerhughes.com), an automatic URL
+<https://www.bakerhughes.com>, an email link to
+[documentation@example.com](mailto:documentation@example.com), a local file link
+to [the random photo](randomphoto.jpg), and a reference-style link to
+[Pandoc documentation][pandoc-docs].
+
+Internal document links should jump to the target section, such as
+[Figures](#figures), [Tables](#tables), and
+[Unnumbered Sample Section](#unnumbered-sample-section).
+
+Cross references should keep the section-based numbering in the PDF: see
+Section \ref{figures}, Figure \ref{fig:bh-logo}, Figure \ref{fig:random-photo},
+Table \ref{tbl:standard-two-column}, Table \ref{tbl:custom-width-table}, and
+Table \ref{tbl:landscape-matrix}.
+
+[pandoc-docs]: https://pandoc.org/MANUAL.html
+
 ### Scope
 
 This section confirms that third-level headings render with the expected
@@ -33,6 +53,11 @@ spacing and typography.
 
 > This is a block quote. It should remain readable and should not collide with
 > surrounding body text or section headings.
+
+# Unnumbered Sample Section {.unnumbered}
+
+This heading uses Pandoc's `{.unnumbered}` attribute. It should render without a
+section number while keeping the normal heading style.
 
 # Lists
 
@@ -57,28 +82,28 @@ spacing and typography.
 
 # Figures
 
-![Baker Hughes logo test image](Pandoc/logo.png){width=35%}
+![Baker Hughes logo test image](Pandoc/logo.png){#fig:bh-logo width=35%}
 
 The figure above checks image placement, caption styling, and section-based
 figure numbering.
 
-![Random photo test image](randomphoto.jpg){width=45%}
+![Random photo test image](randomphoto.jpg){#fig:random-photo width=45%}
 
 The second figure checks a local image that sits beside this Markdown source
 file.
 
 # Tables
 
-Table: Standard two-column table
+Table: Standard two-column table {#tbl:standard-two-column}
 
 | Field | Value |
 |---|---|
 | Product | Aptara MCS |
 | Document Number | AAA693120-TEST |
-| Revision | A |
+| Revision | 003 |
 | Owner | Engineering Documentation |
 
-Table: Standard three-column table
+Table: Standard three-column table {#tbl:standard-three-column}
 
 | Step | Owner | Description |
 |---|---|---|
@@ -87,7 +112,7 @@ Table: Standard three-column table
 | 3 | Review | Check front page, TOC, headers, footers, and tables. |
 
 ::: {.table-cols width="0.15,0.30,0.55"}
-Table: Custom-width table using the style filter
+Table: Custom-width table using the style filter {#tbl:custom-width-table}
 
 | ID | Area | Verification |
 |---|---|---|
@@ -96,7 +121,7 @@ Table: Custom-width table using the style filter
 | T-03 | Table | Header row uses the configured dark background and white bold text. |
 :::
 
-Table: Long table spanning multiple pages
+Table: Long table spanning multiple pages {#tbl:long-table}
 
 | Row | Category | Description |
 |---|---|---|
@@ -168,7 +193,7 @@ end
 This section is wrapped in a landscape Div. It should start on a new page and
 return to normal portrait pages afterward.
 
-Table: Landscape verification matrix
+Table: Landscape verification matrix {#tbl:landscape-matrix}
 
 | Requirement | Input | Expected Output | Status | Notes |
 |---|---|---|---|---|
@@ -194,7 +219,7 @@ normal portrait layout with the standard page header and footer.
 This page verifies that a second landscape block still keeps the header and
 footer at the top and bottom of the page.
 
-Table: Second landscape verification matrix
+Table: Second landscape verification matrix {#tbl:second-landscape-matrix}
 
 | Area | Expected Result | Actual Check | Status |
 |---|---|---|---|

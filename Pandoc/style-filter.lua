@@ -38,6 +38,13 @@ local function latex_escape(s)
   return s
 end
 
+local function latex_label(s)
+  if not s or s == "" then
+    return nil
+  end
+  return s:gsub("[{}\\]", "")
+end
+
 local function blocks_to_text(blocks)
   return latex_escape(pandoc.utils.stringify(blocks))
 end
@@ -92,6 +99,7 @@ local function build_table(tbl, widths_override)
 
   local ncols = #colspecs
   local caption_text = get_caption_text(tbl)
+  local label = latex_label(tbl.identifier)
 
   -- Build column widths
   local cols = {}
@@ -125,7 +133,11 @@ local function build_table(tbl, widths_override)
   table.insert(out, "\\begin{longtable}{" .. colspec .. "}")
 
   if caption_text ~= "" then
-    table.insert(out, "\\caption{" .. caption_text .. "}\\\\")
+    if label then
+      table.insert(out, "\\caption{" .. caption_text .. "\\label{" .. label .. "}}\\\\")
+    else
+      table.insert(out, "\\caption{" .. caption_text .. "}\\\\")
+    end
   end
 
   table.insert(out, "\\hline")

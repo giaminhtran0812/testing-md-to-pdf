@@ -200,6 +200,12 @@
   {\hspace{0.59in}}
 \titlespacing{\section}{0pt}{12pt}{12pt}
 
+\titleformat{name=\section,numberless}
+  {\color{BHGreen}\fontsize{13pt}{13pt}\bfseries}
+  {}
+  {0pt}
+  {}
+
 \titleformat{\subsection}
   {\color{BHGreen}\fontsize{12pt}{13pt}\bfseries}
   {\makebox[0pt][l]{\thesubsection}}
@@ -263,8 +269,8 @@
   \fancyhead[C]{%
     \fontsize{10pt}{12pt}\selectfont\color{black}
     \begin{tabular*}{\headwidth}{@{\extracolsep{\fill}}l r}
-      \BHProduct & Doc No: \BHDocNo \\
-      \BHTitle & Revision \BHRevision \\
+      \BHTitle & Doc No: \BHDocNo \\
+      \BHSubtitle & Revision \BHRevision \\
                 & \BHDate \\
     \end{tabular*}
   }
@@ -284,8 +290,8 @@
 \fancyhead[C]{%
   \fontsize{10pt}{12pt}\selectfont\color{black}
   \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l r}
-    \BHProduct & Doc No: \BHDocNo \\
-    \BHTitle & Revision \BHRevision \\
+    \BHTitle & Doc No: \BHDocNo \\
+    \BHSubtitle & Revision \BHRevision \\
              & \BHDate \\
   \end{tabular*}
 }
@@ -467,7 +473,10 @@ $endif$
 
 \BHFrontPage
 
+\begingroup
+\setlength{\leftskip}{0pt}
 \tableofcontents
+\endgroup
 \newpage
 
 $body$

@@ -50,7 +50,7 @@ section-based numbering.
 | TOC | Table of Contents |
 | URI | Uniform Resource Identifier |
 | URL | Uniform Resource Locator |
-| XML | Extensible Markup Language |
+| XML | Extensible Markup test |
 :::
 
 ## Links and Cross References {#sec:links-cross-references}

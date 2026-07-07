@@ -30,6 +30,29 @@ local function get_width_attr(attributes)
   return attributes["widths"] or attributes["width"]
 end
 
+local function get_note_attr(attributes)
+  if not attributes then
+    return nil
+  end
+  return attributes["note"] or attributes["notes"] or attributes["footnote"]
+end
+
+local function parse_notes(s)
+  local notes = {}
+  if not s or s == "" then
+    return notes
+  end
+
+  for note in s:gmatch("[^|]+") do
+    note = note:gsub("^%s+", ""):gsub("%s+$", "")
+    if note ~= "" then
+      notes[#notes + 1] = note
+    end
+  end
+
+  return notes
+end
+
 local function has_class(el, class_name)
   if not el.classes then
     return false
@@ -69,12 +92,43 @@ local cell_color_classes = {
   ["cell-blue"] = "CellBlue"
 }
 
+local function rgb_color_attr(attributes)
+  if not attributes then
+    return nil
+  end
+
+  local value = attributes["rgb"] or attributes["cell-rgb"] or attributes["bg-rgb"]
+  if not value then
+    return nil
+  end
+
+  local parts = {}
+  for part in value:gmatch("%d+") do
+    local n = tonumber(part)
+    if not n or n < 0 or n > 255 then
+      return nil
+    end
+    parts[#parts + 1] = tostring(n)
+  end
+
+  if #parts ~= 3 then
+    return nil
+  end
+
+  return "[RGB]{" .. table.concat(parts, ",") .. "}"
+end
+
 local function find_cell_color_in_inlines(inlines)
   if not inlines then
     return nil
   end
 
   for _, inline in ipairs(inlines) do
+    local rgb = rgb_color_attr(inline.attributes)
+    if rgb then
+      return rgb
+    end
+
     if inline.classes then
       for _, class in ipairs(inline.classes) do
         if cell_color_classes[class] then
@@ -94,6 +148,11 @@ end
 
 local function cell_color(cell)
   for _, block in ipairs(cell.contents) do
+    local rgb = rgb_color_attr(block.attributes)
+    if rgb then
+      return rgb
+    end
+
     if block.classes then
       for _, class in ipairs(block.classes) do
         if cell_color_classes[class] then
@@ -144,7 +203,11 @@ local function row_to_latex(row, is_header, options)
     else
       local color = cell_color(cell)
       if color then
-        txt = "\\cellcolor{" .. color .. "}" .. txt
+        if color:match("^%[") then
+          txt = "\\cellcolor" .. color .. txt
+        else
+          txt = "\\cellcolor{" .. color .. "}" .. txt
+        end
       end
     end
     table.insert(parts, txt)
@@ -187,6 +250,7 @@ local function build_table(tbl, widths_override)
   local ncols = #colspecs
   local caption_text = get_caption_text(tbl)
   local label = latex_label(tbl.identifier)
+  local notes = parse_notes(get_note_attr(tbl.attributes))
   local options = {
     auto_items = has_class(tbl, "auto-items")
   }
@@ -256,6 +320,16 @@ local function build_table(tbl, widths_override)
     end
   end
 
+  if #notes == 1 then
+    table.insert(out, "\\multicolumn{" .. ncols .. "}{|p{\\dimexpr\\linewidth-2\\tabcolsep-\\arrayrulewidth\\relax}|}{\\fontsize{8pt}{10pt}\\selectfont\\textbf{Note:} " .. latex_escape(notes[1]) .. "} \\\\ \\hline")
+  elseif #notes > 1 then
+    local note_text = {}
+    for i, note in ipairs(notes) do
+      note_text[i] = latex_escape(note)
+    end
+    table.insert(out, "\\multicolumn{" .. ncols .. "}{|p{\\dimexpr\\linewidth-2\\tabcolsep-\\arrayrulewidth\\relax}|}{\\fontsize{8pt}{10pt}\\selectfont\\textbf{Notes:} " .. table.concat(note_text, "\\par{}") .. "} \\\\ \\hline")
+  end
+
   table.insert(out, "\\end{longtable}")
 
   return pandoc.RawBlock("latex", table.concat(out, "\n"))
@@ -286,7 +360,8 @@ function DivWidths(el)
   end
 
   local width_attr = get_width_attr(el.attributes)
-  if has_class(el, "table-cols") or has_class(el, "auto-items") then
+  local note_attr = get_note_attr(el.attributes)
+  if has_class(el, "table-cols") or has_class(el, "auto-items") or note_attr then
     local new_blocks = pandoc.Blocks{}
 
     for _, b in ipairs(el.content) do
@@ -294,6 +369,9 @@ function DivWidths(el)
         b.attributes = b.attributes or {}
         if width_attr then
           b.attributes["widths"] = width_attr
+        end
+        if note_attr then
+          b.attributes["note"] = note_attr
         end
         if has_class(el, "auto-items") then
           b.classes = b.classes or pandoc.List{}

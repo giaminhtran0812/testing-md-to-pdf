@@ -215,6 +215,83 @@ local function row_to_latex(row, is_header, options)
   return table.concat(parts, " & ") .. " \\\\ \\hline"
 end
 
+local function nomenclature_row_to_latex(row)
+  local first = row.cells[1] and cell_to_text(row.cells[1]) or ""
+  local second = row.cells[2] and cell_to_text(row.cells[2]) or ""
+  return first .. " & " .. second .. " \\\\ \\hline"
+end
+
+local function nomenclature_col_widths(widths_override)
+  local widths = widths_override
+  if not widths or #widths ~= 2 then
+    widths = { 0.25, 0.75 }
+  end
+
+  local total = widths[1] + widths[2]
+  if total <= 0 then
+    widths = { 0.25, 0.75 }
+    total = 1
+  end
+
+  return (widths[1] / total) * 0.86, (widths[2] / total) * 0.86
+end
+
+local function build_nomenclature_column(rows, widths_override)
+  local out = {}
+  local first_width, second_width = nomenclature_col_widths(widths_override)
+  table.insert(out, string.format("\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{%.4f\\linewidth}|>{\\raggedright\\arraybackslash}p{%.4f\\linewidth}|}", first_width, second_width))
+  table.insert(out, "\\hline")
+
+  for _, row in ipairs(rows) do
+    table.insert(out, nomenclature_row_to_latex(row))
+  end
+
+  table.insert(out, "\\end{tabular}")
+  return table.concat(out, "\n")
+end
+
+local function build_nomenclature_table(tbl, widths_override)
+  local colspecs = tbl.colspecs
+  if not colspecs or #colspecs ~= 2 then
+    return build_table(tbl, nil)
+  end
+
+  local rows = {}
+  for _, body in ipairs(tbl.bodies) do
+    for _, row in ipairs(body.body) do
+      rows[#rows + 1] = row
+    end
+  end
+
+  local split_at = math.ceil(#rows / 2)
+  local left_rows = {}
+  local right_rows = {}
+  for i, row in ipairs(rows) do
+    if i <= split_at then
+      left_rows[#left_rows + 1] = row
+    else
+      right_rows[#right_rows + 1] = row
+    end
+  end
+
+  local out = {}
+
+  table.insert(out, "\\begingroup")
+  table.insert(out, "\\setlength{\\leftskip}{0pt}")
+  table.insert(out, "\\fontsize{\\BHTableFontSize}{\\BHTableLineHeight}\\selectfont")
+
+  table.insert(out, "\\noindent")
+  table.insert(out, "\\begin{minipage}[t]{0.475\\linewidth}")
+  table.insert(out, build_nomenclature_column(left_rows, widths_override))
+  table.insert(out, "\\end{minipage}\\hfill")
+  table.insert(out, "\\begin{minipage}[t]{0.475\\linewidth}")
+  table.insert(out, build_nomenclature_column(right_rows, widths_override))
+  table.insert(out, "\\end{minipage}")
+  table.insert(out, "\\par\\endgroup")
+
+  return pandoc.RawBlock("latex", table.concat(out, "\n"))
+end
+
 local function widths_to_cols(widths)
   local cols = {}
   local total = 0
@@ -241,7 +318,9 @@ end
 -- Build table (NEW API)
 -- ==============================
 
-local function build_table(tbl, widths_override)
+local build_table
+
+build_table = function(tbl, widths_override)
   local colspecs = tbl.colspecs
   if not colspecs or #colspecs == 0 then
     return nil
@@ -351,6 +430,10 @@ function Table(tbl)
     widths = parse_widths(width_attr)
   end
 
+  if has_class(tbl, "nomenclature") then
+    return build_nomenclature_table(tbl, widths)
+  end
+
   return build_table(tbl, widths)
 end
 
@@ -361,7 +444,7 @@ function DivWidths(el)
 
   local width_attr = get_width_attr(el.attributes)
   local note_attr = get_note_attr(el.attributes)
-  if has_class(el, "table-cols") or has_class(el, "auto-items") or note_attr then
+  if has_class(el, "table-cols") or has_class(el, "auto-items") or has_class(el, "nomenclature") or note_attr then
     local new_blocks = pandoc.Blocks{}
 
     for _, b in ipairs(el.content) do
@@ -376,6 +459,10 @@ function DivWidths(el)
         if has_class(el, "auto-items") then
           b.classes = b.classes or pandoc.List{}
           b.classes:insert("auto-items")
+        end
+        if has_class(el, "nomenclature") then
+          b.classes = b.classes or pandoc.List{}
+          b.classes:insert("nomenclature")
         end
       end
       new_blocks:insert(b)

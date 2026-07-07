@@ -2,7 +2,7 @@
 title: "Aptara MCS"
 subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
-revision: "009"
+revision: "015"
 author: "Codex"
 date: "July 7, 2026"
 copyright_year: "2026"
@@ -25,6 +25,33 @@ The purpose of this file is to provide a repeatable conversion input for PDF
 style testing. The generated PDF should show the front page, table of contents,
 running header, footer, page numbers, table captions, figure captions, and
 section-based numbering.
+
+## Nomenclature and Abbreviations
+
+::: {.nomenclature width="0.25,0.75"}
+| Abbreviation | Spell out |
+|---|---|
+| API | Application Programming Interface |
+| BOM | Bill of Materials |
+| CIL | Component Information Library |
+| CLI | Command Line Interface |
+| CSV | Comma-Separated Values |
+| GUI | Graphical User Interface |
+| HTML | HyperText Markup Language |
+| JSON | JavaScript Object Notation |
+| MCS | Modular Control System |
+| PDF | Portable Document Format |
+| QA | Quality Assurance |
+| RGB | Red, Green, Blue |
+| SDK | Software Development Kit |
+| SSRS | SQL Server Reporting Services |
+| SVG | Scalable Vector Graphics |
+| TEX | TeX Typesetting Source |
+| TOC | Table of Contents |
+| URI | Uniform Resource Identifier |
+| URL | Uniform Resource Locator |
+| XML | Extensible Markup Language |
+:::
 
 ## Links and Cross References {#sec:links-cross-references}
 
@@ -102,7 +129,7 @@ Table: Standard two-column table {#tbl:standard-two-column}
 |---|---|
 | Product | Aptara MCS |
 | Document Number | AAA693120-TEST |
-| Revision | 009 |
+| Revision | 015 |
 | Owner | Engineering Documentation |
 
 Table: Standard three-column table {#tbl:standard-three-column}

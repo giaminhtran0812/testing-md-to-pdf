@@ -1,12 +1,16 @@
 \documentclass[11pt,a4paper]{article}
 
+% ---------- Layout parameters ----------
+\newlength{\BHHeaderContentGap}
+\setlength{\BHHeaderContentGap}{30pt}
+
 % ---------- Page ----------
 \usepackage[
   left=0.5in,
   right=0.5in,
   top=1.2in,
   bottom=0.9in,
-  headsep=45pt,
+  headsep=\BHHeaderContentGap,
   footskip=20pt
 ]{geometry}
 
@@ -14,7 +18,9 @@
 \addtolength{\topmargin}{-0.11in}
 
 % ---------- Paragraph ----------
-\setlength{\leftskip}{0.59in}
+\newlength{\BHBodyLeftSkip}
+\setlength{\BHBodyLeftSkip}{0.59in}
+\setlength{\leftskip}{\BHBodyLeftSkip}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
 
@@ -385,7 +391,7 @@
     right=0.5in,
     top=1.2in,
     bottom=0.9in,
-    headsep=45pt,
+    headsep=\BHHeaderContentGap,
     footskip=20pt
   }%
   \setlength{\paperwidth}{297mm}%
@@ -396,7 +402,7 @@
   \setlength{\linewidth}{\textwidth}%
   \setlength{\hsize}{\textwidth}%
   \setlength{\headwidth}{\textwidth}%
-  \setlength{\leftskip}{0pt}%
+  \setlength{\leftskip}{\BHBodyLeftSkip}%
   \BHLandscapeActivetrue
   \thispagestyle{landscapePage}%
   \pagestyle{landscapePage}%
@@ -410,7 +416,7 @@
     right=0.5in,
     top=1.2in,
     bottom=0.9in,
-    headsep=45pt,
+    headsep=\BHHeaderContentGap,
     footskip=20pt
   }%
   \setlength{\paperwidth}{210mm}%
@@ -421,6 +427,7 @@
   \setlength{\linewidth}{\textwidth}%
   \setlength{\hsize}{\textwidth}%
   \setlength{\headwidth}{\textwidth}%
+  \setlength{\leftskip}{\BHBodyLeftSkip}%
   \pagestyle{fancy}%
 }
 

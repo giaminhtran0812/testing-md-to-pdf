@@ -2,7 +2,7 @@
 title: "Aptara MCS"
 subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
-revision: "003"
+revision: "004"
 author: "Codex"
 date: "July 7, 2026"
 copyright_year: "2026"
@@ -42,7 +42,9 @@ Internal document links should jump to the target section, such as
 Cross references should keep the section-based numbering in the PDF: see
 Section \ref{figures}, Figure \ref{fig:bh-logo}, Figure \ref{fig:random-photo},
 Table \ref{tbl:standard-two-column}, Table \ref{tbl:custom-width-table}, and
-Table \ref{tbl:landscape-matrix}.
+Table \ref{tbl:landscape-matrix}. Auto-numbered row references should also
+resolve, for example Item \ref{itm:metadata-check} and Item
+\ref{itm:release-approval}.
 
 [pandoc-docs]: https://pandoc.org/MANUAL.html
 
@@ -100,7 +102,7 @@ Table: Standard two-column table {#tbl:standard-two-column}
 |---|---|
 | Product | Aptara MCS |
 | Document Number | AAA693120-TEST |
-| Revision | 003 |
+| Revision | 004 |
 | Owner | Engineering Documentation |
 
 Table: Standard three-column table {#tbl:standard-three-column}
@@ -120,6 +122,21 @@ Table: Custom-width table using the style filter {#tbl:custom-width-table}
 | T-02 | Footer | Copyright, confidentiality, and page number are visible. |
 | T-03 | Table | Header row uses the configured dark background and white bold text. |
 :::
+
+::: {.auto-items .table-cols width="0.12,0.32,0.56"}
+Table: Auto-numbered item table with colored cells {#tbl:auto-item-status}
+
+| Item | Check | Status |
+|---|---|---|
+| {#itm:metadata-check} | Metadata revision and document fields | [Ready]{.cell-green} |
+| {#itm:cross-reference-check} | Figure, table, and item cross references | [Needs review]{.cell-yellow} |
+| {#itm:release-approval} | Final PDF approval before release | [Blocked]{.cell-red} |
+:::
+
+The auto-numbered item table should allow normal text to refer to individual
+rows. For example, Item \ref{itm:metadata-check} checks metadata, Item
+\ref{itm:cross-reference-check} checks references, and Item
+\ref{itm:release-approval} tracks release approval.
 
 Table: Long table spanning multiple pages {#tbl:long-table}
 

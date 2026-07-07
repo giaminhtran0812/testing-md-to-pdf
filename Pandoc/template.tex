@@ -64,6 +64,11 @@
 \definecolor{BHGray}{HTML}{6B6B6B}
 \definecolor{BHRed}{HTML}{C00000}
 \definecolor{TableHeader}{HTML}{05322B}
+\definecolor{CellGreen}{HTML}{DDEFEA}
+\definecolor{CellYellow}{HTML}{FFF2CC}
+\definecolor{CellRed}{HTML}{F4CCCC}
+\definecolor{CellGray}{HTML}{E7E6E6}
+\definecolor{CellBlue}{HTML}{D9EAF7}
 
 % ---------- Hyperref ----------
 \hypersetup{
@@ -88,6 +93,7 @@
 \renewcommand{\thesection}{\arabic{section}}
 \counterwithin{table}{section}
 \counterwithin{figure}{section}
+\newcounter{BHTableItem}
 \renewcommand{\thetable}{\thesection-\arabic{table}}
 \renewcommand{\thefigure}{\thesection-\arabic{figure}}
 

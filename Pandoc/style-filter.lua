@@ -30,6 +30,18 @@ local function get_width_attr(attributes)
   return attributes["widths"] or attributes["width"]
 end
 
+local function has_class(el, class_name)
+  if not el.classes then
+    return false
+  end
+  for _, c in ipairs(el.classes) do
+    if c == class_name then
+      return true
+    end
+  end
+  return false
+end
+
 local function latex_escape(s)
   s = s:gsub("\\", "\\textbackslash{}")
   s = s:gsub("([%%{}_%#&$])", "\\%1")
@@ -49,16 +61,91 @@ local function blocks_to_text(blocks)
   return latex_escape(pandoc.utils.stringify(blocks))
 end
 
+local cell_color_classes = {
+  ["cell-green"] = "CellGreen",
+  ["cell-yellow"] = "CellYellow",
+  ["cell-red"] = "CellRed",
+  ["cell-gray"] = "CellGray",
+  ["cell-blue"] = "CellBlue"
+}
+
+local function find_cell_color_in_inlines(inlines)
+  if not inlines then
+    return nil
+  end
+
+  for _, inline in ipairs(inlines) do
+    if inline.classes then
+      for _, class in ipairs(inline.classes) do
+        if cell_color_classes[class] then
+          return cell_color_classes[class]
+        end
+      end
+    end
+
+    local nested = find_cell_color_in_inlines(inline.content)
+    if nested then
+      return nested
+    end
+  end
+
+  return nil
+end
+
+local function cell_color(cell)
+  for _, block in ipairs(cell.contents) do
+    if block.classes then
+      for _, class in ipairs(block.classes) do
+        if cell_color_classes[class] then
+          return cell_color_classes[class]
+        end
+      end
+    end
+
+    local color = find_cell_color_in_inlines(block.content)
+    if color then
+      return color
+    end
+  end
+
+  return nil
+end
+
 local function cell_to_text(cell)
   return blocks_to_text(cell.contents)
 end
 
-local function row_to_latex(row, is_header)
+local function item_label(cell)
+  local text = pandoc.utils.stringify(cell.contents)
+  return text:match("^%s*{#([%w:_%.%-]+)}%s*$")
+    or text:match("^%s*{#([%w:_%.%-]+)}")
+end
+
+local function row_to_latex(row, is_header, options)
   local parts = {}
-  for _, cell in ipairs(row.cells) do
-    local txt = cell_to_text(cell)
+  options = options or {}
+
+  for i, cell in ipairs(row.cells) do
+    local txt
+
+    if options.auto_items and not is_header and i == 1 then
+      local label = item_label(cell)
+      txt = "\\refstepcounter{BHTableItem}"
+      if label then
+        txt = txt .. "\\label{" .. label .. "}"
+      end
+      txt = txt .. "\\theBHTableItem"
+    else
+      txt = cell_to_text(cell)
+    end
+
     if is_header then
       txt = "\\textcolor{white}{\\textbf{" .. txt .. "}}"
+    else
+      local color = cell_color(cell)
+      if color then
+        txt = "\\cellcolor{" .. color .. "}" .. txt
+      end
     end
     table.insert(parts, txt)
   end
@@ -100,6 +187,9 @@ local function build_table(tbl, widths_override)
   local ncols = #colspecs
   local caption_text = get_caption_text(tbl)
   local label = latex_label(tbl.identifier)
+  local options = {
+    auto_items = has_class(tbl, "auto-items")
+  }
 
   -- Build column widths
   local cols = {}
@@ -130,6 +220,9 @@ local function build_table(tbl, widths_override)
   local colspec = "|" .. table.concat(cols, "|") .. "|"
 
   local out = {}
+  if options.auto_items then
+    table.insert(out, "\\setcounter{BHTableItem}{0}")
+  end
   table.insert(out, "\\begin{longtable}{" .. colspec .. "}")
 
   if caption_text ~= "" then
@@ -146,20 +239,20 @@ local function build_table(tbl, widths_override)
   if tbl.head and #tbl.head.rows > 0 then
     local header_row = tbl.head.rows[1]
     table.insert(out, "\\rowcolor{TableHeader}")
-    table.insert(out, row_to_latex(header_row, true))
+    table.insert(out, row_to_latex(header_row, true, options))
 
     table.insert(out, "\\endfirsthead")
     table.insert(out, "\\hline")
 
     table.insert(out, "\\rowcolor{TableHeader}")
-    table.insert(out, row_to_latex(header_row, true))
+    table.insert(out, row_to_latex(header_row, true, options))
     table.insert(out, "\\endhead")
   end
 
   -- Body
   for _, body in ipairs(tbl.bodies) do
     for _, row in ipairs(body.body) do
-      table.insert(out, row_to_latex(row, false))
+      table.insert(out, row_to_latex(row, false, options))
     end
   end
 
@@ -187,33 +280,25 @@ function Table(tbl)
   return build_table(tbl, widths)
 end
 
-local function has_class(el, class_name)
-  if not el.classes then
-    return false
-  end
-  for _, c in ipairs(el.classes) do
-    if c == class_name then
-      return true
-    end
-  end
-  return false
-end
-
 function DivWidths(el)
   if FORMAT ~= "latex" then
     return nil
   end
 
   local width_attr = get_width_attr(el.attributes)
-  if has_class(el, "table-cols") and width_attr then
-    local widths = parse_widths(width_attr)
-
+  if has_class(el, "table-cols") or has_class(el, "auto-items") then
     local new_blocks = pandoc.Blocks{}
 
     for _, b in ipairs(el.content) do
       if b.t == "Table" then
         b.attributes = b.attributes or {}
-        b.attributes["widths"] = width_attr
+        if width_attr then
+          b.attributes["widths"] = width_attr
+        end
+        if has_class(el, "auto-items") then
+          b.classes = b.classes or pandoc.List{}
+          b.classes:insert("auto-items")
+        end
       end
       new_blocks:insert(b)
     end

@@ -61,6 +61,7 @@
 \usepackage{array}
 \usepackage{colortbl}
 \usepackage{etoolbox}
+\usepackage[most]{tcolorbox}
 \usepackage[titles]{tocloft}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
@@ -191,6 +192,27 @@
 \arrayrulecolor{black}
 \setlength{\LTleft}{0pt}
 \setlength{\LTright}{0pt}
+
+% ---------- Notes ----------
+\newtcolorbox{BHNoteBox}{
+  enhanced,
+  breakable,
+  colback=CellBlue!35,
+  colframe=BHGreen,
+  boxrule=0.6pt,
+  leftrule=3pt,
+  arc=0pt,
+  left=7pt,
+  right=7pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=8pt,
+  after skip=8pt,
+  width=\dimexpr\linewidth-\leftskip\relax,
+  fonttitle=\bfseries,
+  title=Note,
+  before upper={\setlength{\leftskip}{0pt}}
+}
 
 % ---------- Metadata ----------
 \newcommand{\BHProduct}{$if(product)$$product$$endif$}

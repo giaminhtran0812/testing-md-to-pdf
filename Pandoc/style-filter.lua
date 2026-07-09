@@ -503,8 +503,26 @@ function DivLandscape(el)
   return blocks
 end
 
+function DivNote(el)
+  if FORMAT ~= "latex" then
+    return nil
+  end
+
+  if not has_class(el, "note") then
+    return nil
+  end
+
+  local blocks = pandoc.Blocks{}
+  blocks:insert(pandoc.RawBlock("latex", "\\begin{BHNoteBox}"))
+  blocks:extend(el.content)
+  blocks:insert(pandoc.RawBlock("latex", "\\end{BHNoteBox}"))
+
+  return blocks
+end
+
 return {
   { Div = DivWidths, traverse = "topdown" },
+  { Div = DivNote },
   { Table = Table },
   { Div = DivLandscape }
 }

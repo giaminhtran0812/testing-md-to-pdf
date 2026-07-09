@@ -2,7 +2,7 @@
 title: "Aptara MCS"
 subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
-revision: "016"
+revision: "019"
 author: "Codex"
 date: "July 7, 2026"
 copyright_year: "2026"
@@ -170,7 +170,7 @@ Table: Standard two-column table {#tbl:standard-two-column}
 |---|---|
 | Product | Aptara MCS |
 | Document Number | AAA693120-TEST |
-| Revision | 016 |
+| Revision | 019 |
 | Owner | Engineering Documentation |
 
 Table: Standard three-column table {#tbl:standard-three-column}
@@ -318,5 +318,7 @@ Table: Second landscape verification matrix {#tbl:second-landscape-matrix}
 # Post-Landscape Portrait Check
 
 This page verifies that the document returns to normal portrait layout after a
-second landscape page. The footer should sit at the bottom of the portrait page,
-and the header should use the standard portrait width.
+second landscape page. The footer should sit at the bottom of the portrait page.
+
+This paragraph is a track-change test at the end of the document. It should
+appear as added content in the comparison PDF.

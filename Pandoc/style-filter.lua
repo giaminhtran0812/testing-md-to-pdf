@@ -84,6 +84,50 @@ local function blocks_to_text(blocks)
   return latex_escape(pandoc.utils.stringify(blocks))
 end
 
+local function inlines_to_latex(inlines)
+  local out = {}
+
+  for _, inline in ipairs(inlines or {}) do
+    if inline.t == "Str" then
+      out[#out + 1] = latex_escape(inline.text)
+    elseif inline.t == "Space" or inline.t == "SoftBreak" then
+      out[#out + 1] = " "
+    elseif inline.t == "LineBreak" then
+      out[#out + 1] = "\\newline{}"
+    elseif inline.t == "Code" then
+      out[#out + 1] = "\\texttt{" .. latex_escape(inline.text) .. "}"
+    elseif inline.t == "Emph" then
+      out[#out + 1] = "\\emph{" .. inlines_to_latex(inline.content) .. "}"
+    elseif inline.t == "Strong" then
+      out[#out + 1] = "\\textbf{" .. inlines_to_latex(inline.content) .. "}"
+    elseif inline.t == "RawInline" and (inline.format == "latex" or inline.format == "tex") then
+      out[#out + 1] = inline.text
+    elseif inline.content then
+      out[#out + 1] = inlines_to_latex(inline.content)
+    else
+      out[#out + 1] = latex_escape(pandoc.utils.stringify(inline))
+    end
+  end
+
+  return table.concat(out)
+end
+
+local function blocks_to_latex(blocks)
+  local out = {}
+
+  for _, block in ipairs(blocks or {}) do
+    if block.t == "Plain" or block.t == "Para" then
+      out[#out + 1] = inlines_to_latex(block.content)
+    elseif block.t == "RawBlock" and (block.format == "latex" or block.format == "tex") then
+      out[#out + 1] = block.text
+    else
+      out[#out + 1] = latex_escape(pandoc.utils.stringify(block))
+    end
+  end
+
+  return table.concat(out, "\\par{}")
+end
+
 local cell_color_classes = {
   ["cell-green"] = "CellGreen",
   ["cell-yellow"] = "CellYellow",
@@ -171,7 +215,7 @@ local function cell_color(cell)
 end
 
 local function cell_to_text(cell)
-  return blocks_to_text(cell.contents)
+  return blocks_to_latex(cell.contents)
 end
 
 local function item_label(cell)
@@ -194,6 +238,7 @@ local function row_to_latex(row, is_header, options)
         txt = txt .. "\\label{" .. label .. "}"
       end
       txt = txt .. "\\theBHTableItem"
+      txt = "\\raggedright " .. txt
     else
       txt = cell_to_text(cell)
     end

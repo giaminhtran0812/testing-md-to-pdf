@@ -6,18 +6,6 @@ cd "$repo_root"
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:/c/Program Files/Pandoc:/c/ProgramData/chocolatey/bin:$HOME/scoop/shims:$HOME/.cargo/bin:$PATH"
 
-pdf_engine="${PDF_ENGINE:-tectonic}"
-
-if ! command -v pandoc >/dev/null 2>&1; then
-  echo "pandoc is required to build PDFs." >&2
-  exit 1
-fi
-
-if ! command -v "$pdf_engine" >/dev/null 2>&1; then
-  echo "$pdf_engine is required to build PDFs." >&2
-  exit 1
-fi
-
 markdown_files=()
 while IFS= read -r md_file; do
   markdown_files+=("$md_file")
@@ -39,18 +27,12 @@ for md_file in "${markdown_files[@]}"; do
     continue
   fi
 
-  output_pdf="${md_file%.md}.pdf"
-  resource_path=".:$(dirname "$md_file")"
+  revision="$(sed -nE 's/^revision:[[:space:]]*["'\'']?([0-9]{3})["'\'']?[[:space:]]*$/\1/p' "$md_file" | head -n 1)"
+  if [[ -z "$revision" ]]; then
+    echo "Skipping $md_file: YAML revision must be exactly three digits (000, 001, ...)." >&2
+    continue
+  fi
 
-  echo "Building $output_pdf from staged Markdown file $md_file"
-  pandoc "$md_file" \
-    --from=markdown+fenced_divs+link_attributes+table_captions \
-    --template=Pandoc/template.tex \
-    --lua-filter=Pandoc/style-filter.lua \
-    --pdf-engine="$pdf_engine" \
-    --resource-path="$resource_path" \
-    --syntax-highlighting=tango \
-    -o "$output_pdf"
-
-  git add "$output_pdf"
+  scripts/build-revision.sh "$md_file" "$revision"
+  git add "${md_file%.md}-Rev${revision}.pdf"
 done

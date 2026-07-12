@@ -2,7 +2,7 @@
 title: "Aptara MCS"
 subtitle: "Standard Product Test Document"
 doc_number: "AAA693120-TEST"
-revision: "019"
+revision: "000"
 author: "Codex"
 date: "July 7, 2026"
 copyright_year: "2026"
@@ -29,6 +29,7 @@ section-based numbering.
 ::: {.note}
 Use this note style for short supporting information that should stand out from
 normal body text without becoming a warning or formal requirement.
+
 :::
 
 ## Nomenclature and Abbreviations

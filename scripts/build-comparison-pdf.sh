@@ -51,9 +51,15 @@ old_md="$tmp_dir/old.md"
 new_md="$tmp_dir/new.md"
 comparison_md="$tmp_dir/comparison.md"
 
-git show "${old_ref}:${md_file}" > "$old_md"
+if [[ -f "$old_ref" ]]; then
+  cp "$old_ref" "$old_md"
+else
+  git show "${old_ref}:${md_file}" > "$old_md"
+fi
 
-if [[ "$new_ref" == "WORKTREE" ]]; then
+if [[ -f "$new_ref" ]]; then
+  cp "$new_ref" "$new_md"
+elif [[ "$new_ref" == "WORKTREE" ]]; then
   if [[ ! -f "$md_file" ]]; then
     echo "Working tree file does not exist: $md_file" >&2
     exit 1
@@ -156,7 +162,7 @@ def emit_block_change(text, color, strike):
 old_lines_all = read_text(old_path)
 new_lines_all = read_text(new_path)
 new_front, new_body = split_front_matter(new_lines_all)
-_, old_body = split_front_matter(old_lines_all)
+old_front, old_body = split_front_matter(old_lines_all)
 
 title = metadata_value(new_front, "title", pathlib.Path(md_file).stem)
 subtitle = metadata_value(new_front, "subtitle", "Markdown comparison")
@@ -165,6 +171,8 @@ revision = metadata_value(new_front, "revision", "")
 date = metadata_value(new_front, "date", "")
 copyright_year = metadata_value(new_front, "copyright_year", "2026")
 confidentiality = metadata_value(new_front, "confidentiality", "Baker Hughes Confidential")
+new_revision = metadata_value(new_front, "revision", new_ref)
+old_revision = metadata_value(old_front, "revision", old_ref)
 
 result = [
     "---",
@@ -179,11 +187,11 @@ result = [
     "---",
     "",
     "::: {.note}",
-    f"Comparison source: `{md_file}`. Old revision: `{old_ref}`. New revision: `{new_ref}`.",
+    f"Changes from Revision {old_revision} to Revision {new_revision}.",
     "",
     r"\textcolor{BHRed}{\sout{Red strikethrough text was deleted.}}",
     "",
-    r"\textcolor{BHGreen}{Green text was added.}",
+    r"\textcolor{DiffGreen}{Green text was added.}",
     ":::",
     "",
 ]
@@ -208,7 +216,7 @@ for tag, i1, i2, j1, j2 in matcher.get_opcodes():
     if tag in ("replace", "insert"):
         for line in new_chunk:
             if line != "":
-                result.append(emit_block_change(line, "BHGreen", False))
+                result.append(emit_block_change(line, "DiffGreen", False))
 
     if not table_change:
         result.append("")

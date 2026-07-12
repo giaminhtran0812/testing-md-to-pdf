@@ -39,9 +39,6 @@ done
 
 doc_dir="$(dirname "$md_file")"
 doc_filename="$(basename "$md_file")"
-doc_stem="${doc_filename%.md}"
-output_stem="$doc_dir/${doc_stem}-Rev${revision}"
-output_pdf="$output_stem.pdf"
 resource_path=".:$doc_dir"
 
 tmp_dir="$(mktemp -d)"
@@ -70,17 +67,54 @@ if text.startswith("---\n"):
 pathlib.Path(output).write_text(text, encoding="utf-8")
 PY
 
-if [[ "$revision" == "000" ]]; then
-  echo "Building clean baseline PDF: $output_pdf"
-  pandoc "$revision_md" \
-    --from=markdown+fenced_divs+link_attributes+table_captions \
-    --template=Pandoc/template.tex \
-    --lua-filter=Pandoc/style-filter.lua \
-    --pdf-engine="$pdf_engine" \
-    --resource-path="$resource_path" \
-    --syntax-highlighting=tango \
-    -o "$output_pdf"
-else
+metadata_output="$(python3 - "$revision_md" <<'PY'
+import pathlib
+import re
+import sys
+import unicodedata
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+
+def value(key):
+    match = re.search(rf"(?m)^{re.escape(key)}\s*:\s*(.*)$", text)
+    if not match:
+        return ""
+    return match.group(1).strip().strip("\"'")
+
+def slug(value):
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    value = re.sub(r"[^A-Za-z0-9]+", "-", value)
+    return value.strip("-")
+
+print(slug(value("doc_number")))
+full_title = " ".join(part for part in (value("title"), value("subtitle")) if part)
+print(slug(full_title))
+PY
+)"
+
+doc_number="$(printf '%s\n' "$metadata_output" | sed -n '1p')"
+title_slug="$(printf '%s\n' "$metadata_output" | sed -n '2p')"
+
+if [[ -z "$doc_number" || -z "$title_slug" ]]; then
+  echo "YAML metadata must include non-empty doc_number and title values." >&2
+  exit 1
+fi
+
+output_stem="$doc_dir/${doc_number}-${revision}-${title_slug}"
+output_pdf="$output_stem.pdf"
+comparison_pdf="$output_stem-change-marked.pdf"
+
+echo "Building clean revision PDF: $output_pdf"
+pandoc "$revision_md" \
+  --from=markdown+fenced_divs+link_attributes+table_captions \
+  --template=Pandoc/template.tex \
+  --lua-filter=Pandoc/style-filter.lua \
+  --pdf-engine="$pdf_engine" \
+  --resource-path="$resource_path" \
+  --syntax-highlighting=tango \
+  -o "$output_pdf"
+
+if [[ "$revision" != "000" ]]; then
   baseline_branch="${BASELINE_BRANCH:-main}"
   if ! git show-ref --verify --quiet "refs/heads/$baseline_branch"; then
     echo "Baseline branch does not exist locally: $baseline_branch" >&2
@@ -109,7 +143,8 @@ else
 
   baseline_md="$tmp_dir/baseline.md"
   git show "$base_commit:$baseline_path" > "$baseline_md"
-  scripts/build-comparison-pdf.sh "$baseline_md" "$revision_md" "$md_file" "$output_pdf"
+  scripts/build-comparison-pdf.sh "$baseline_md" "$revision_md" "$md_file" "$comparison_pdf"
+  echo "Built comparison PDF: $comparison_pdf"
 fi
 
 echo "Built revision $revision: $output_pdf"

@@ -34,5 +34,33 @@ for md_file in "${markdown_files[@]}"; do
   fi
 
   scripts/build-revision.sh "$md_file" "$revision"
-  git add "${md_file%.md}-Rev${revision}.pdf"
+  metadata_output="$(python3 - "$md_file" <<'PY'
+import pathlib
+import re
+import sys
+import unicodedata
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+
+def value(key):
+    match = re.search(rf"(?m)^{re.escape(key)}\s*:\s*(.*)$", text)
+    return match.group(1).strip().strip("\"'") if match else ""
+
+def slug(value):
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-")
+
+print(slug(value("doc_number")))
+full_title = " ".join(part for part in (value("title"), value("subtitle")) if part)
+print(slug(full_title))
+PY
+)"
+  doc_number="$(printf '%s\n' "$metadata_output" | sed -n '1p')"
+  title_slug="$(printf '%s\n' "$metadata_output" | sed -n '2p')"
+  output_stem="$(dirname "$md_file")/${doc_number}-${revision}-${title_slug}"
+
+  git add "$output_stem.pdf"
+  if [[ "$revision" != "000" ]]; then
+    git add "$output_stem-change-marked.pdf"
+  fi
 done

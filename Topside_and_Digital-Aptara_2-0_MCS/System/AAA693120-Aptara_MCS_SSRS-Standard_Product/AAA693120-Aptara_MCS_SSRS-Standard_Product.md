@@ -2,9 +2,9 @@
 title: "Aptara MCS"
 subtitle: "SSRS Standard Product"
 doc_number: "AAA693120"
-revision: "000"
+revision: "001"
 author: "Systems Engineering"
-date: "July 12, 2026"
+date: "July 13, 2026"
 copyright_year: "2026"
 confidentiality: "Baker Hughes Confidential"
 ---
@@ -23,9 +23,10 @@ system components, present system status to authorized users, and retain the
 information required for engineering analysis and operational reporting.
 
 ::: {.note}
-Revision 000 is the initial controlled baseline. Project-specific deviations
-shall be documented separately and shall not change the standard product
-requirements without formal review.
+Revision 001 adds availability monitoring, backup integrity, and recovery
+verification requirements. Project-specific deviations shall be documented
+separately and shall not change the standard product requirements without
+formal review.
 :::
 
 ## Scope
@@ -71,8 +72,9 @@ The SSRS shall support the following operating modes:
 
 1. **Normal operation** - all configured services are available and data is
    collected continuously.
-2. **Degraded operation** - one or more external interfaces are unavailable,
-   while local services continue operating where possible.
+2. **Degraded operation** - one or more external interfaces are unavailable.
+   Local data collection and reporting services shall continue operating where
+   their required dependencies remain available.
 3. **Maintenance mode** - authorized personnel may stop selected services for
    backup, configuration, or software maintenance.
 4. **Recovery mode** - services and retained data are restored following a
@@ -89,6 +91,8 @@ The SSRS shall support the following operating modes:
 | SSRS-GEN-003 | The SSRS shall retain an audit record of security-relevant administrative actions. |
 | SSRS-GEN-004 | The SSRS shall recover automatically after restoration of the computing platform. |
 | SSRS-GEN-005 | The SSRS shall prevent unauthorized modification of controlled configuration data. |
+| SSRS-GEN-006 | The SSRS shall monitor critical application services and report an unavailable service to authorized users. |
+| SSRS-GEN-007 | The SSRS shall verify the integrity of a completed configuration backup before reporting the backup as successful. |
 
 ## Data and Reporting Requirements
 
@@ -98,6 +102,7 @@ The SSRS shall support the following operating modes:
 | SSRS-DAT-002 | The SSRS shall preserve alarm and event time order during normal operation. |
 | SSRS-DAT-003 | Authorized users shall be able to export approved report data in PDF and CSV formats. |
 | SSRS-DAT-004 | Reports shall identify the report period, generation time, and data source. |
+| SSRS-DAT-005 | Buffered records shall be forwarded in chronological order after restoration of an interrupted data-source connection. |
 
 ## Security Requirements
 
@@ -114,7 +119,8 @@ The SSRS shall support the following operating modes:
 
 The control system interface shall provide the configured process values,
 equipment states, alarms, and events. Loss of this interface shall be reported
-to the operator and shall not corrupt previously retained data.
+to the operator within the configured monitoring interval and shall not corrupt
+previously retained data.
 
 ## User Interface
 
@@ -129,7 +135,7 @@ time basis.
 
 # Verification
 
-The revision 000 baseline shall be verified using the methods below.
+The revision 001 baseline shall be verified using the methods below.
 
 ::: {.table-cols width="0.18,0.18,0.64"}
 Table: Initial verification matrix {#tbl:verification-matrix}
@@ -142,10 +148,12 @@ Table: Initial verification matrix {#tbl:verification-matrix}
 | Reporting | Demonstration | An authorized user can generate and export a standard report. |
 | Access control | Test | Each test role can access only its permitted functions. |
 | Recovery | Test | Services recover after a controlled platform restart. |
+| Backup integrity | Test | A valid backup is accepted and an intentionally corrupted backup is rejected. |
+| Interface recovery | Test | Buffered records are transferred in time order after communication is restored. |
 :::
 
 # Revision Notes
 
-Revision 000 establishes the initial SSRS Standard Product baseline. Detailed
-project configuration, final performance limits, and customer-specific
-interfaces will be defined in the applicable project documentation.
+Revision 001 extends the SSRS Standard Product baseline with service-availability
+monitoring, backup-integrity verification, and deterministic recovery of
+buffered records after an interface interruption.
